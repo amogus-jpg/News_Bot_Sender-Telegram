@@ -20,7 +20,7 @@ def Drop_News():
   # Для изменения параметров вызова API, обратитесь к документации https://newsdata.io/documentation/#latest-news
   response = api.news_api(country='ru', size=1)
   
-  message = '*' + response['results'][0]['title'] + '*' + '\n' + '\n + response['results'][0]['content']
+  message = '*' + response['results'][0]['title'] + '*' + '\n' + '\n' + response['results'][0]['content']
   bot.sendMessage(chat_id=CHANNEL_ID, text=message, parse_mode=ParseMode.MARKDOWN)
 
 def Program():
