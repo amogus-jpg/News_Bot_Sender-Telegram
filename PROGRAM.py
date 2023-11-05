@@ -16,9 +16,9 @@ CHANNEL_ID = ''
 
 bot = Bot(token=TOKEN)
 
-def Drop_News():
+def Drop_News(garbage):
   response = api.news_api(country='ru', size=1)
-  message = '*' + response['results'][0]['title'] + '*' + '\n' + '\n' + response['results'][0]['content']
+  message = '*' + response['results'][0]['title'] + '*' + '\n' + response['results'][0]['content']
   bot.sendMessage(chat_id=CHANNEL_ID, text=message, parse_mode=ParseMode.MARKDOWN)
 
 def Program():
