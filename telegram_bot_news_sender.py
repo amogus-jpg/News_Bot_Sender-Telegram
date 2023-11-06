@@ -11,9 +11,6 @@ from telegram import ParseMode
 from telegram.ext import Updater
 from newsdataapi import NewsDataApiClient
 
-# Глобальная переменная для определения, следует ли продолжать работу с секундомером
-continue_stopwatch = True
-
 # Загрузка конфигурации из файла config.ini
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -26,7 +23,7 @@ Discord_Presence_Decision = config.getboolean('Allow_Discord_Presence', 'decisio
 CLIENT_ID = config['Discord_Client_ID']['application_id']
 
 # Для API ключа, зарегистрируйтесь на https://newsdata.io
-api = NewsDataApiClient(apikey='pub_32321168a353ecce38e077c4d38b936290b67')
+api = NewsDataApiClient(apikey=api_key)
 
 # Вход в бота
 bot = Bot(token=TOKEN)
@@ -45,7 +42,7 @@ def start_stopwatch():
     minutes = 0
     hours = 0
 
-    while continue_stopwatch:
+    while True:
         time_string = f"{hours:02}:{minutes:02}:{seconds:02}"
         sys.stdout.write("\rВремя текущей сессии: " + time_string)
         sys.stdout.flush()
