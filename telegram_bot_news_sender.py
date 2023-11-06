@@ -11,6 +11,9 @@ from telegram import ParseMode
 from telegram.ext import Updater
 from newsdataapi import NewsDataApiClient
 
+# Глобальная переменная для определения, следует ли продолжать работу с секундомером
+continue_stopwatch = True
+
 # Загрузка конфигурации из файла config.ini
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -42,7 +45,7 @@ def start_stopwatch():
     minutes = 0
     hours = 0
 
-    while True:
+    while continue_stopwatch:
         time_string = f"{hours:02}:{minutes:02}:{seconds:02}"
         sys.stdout.write("\rВремя текущей сессии: " + time_string)
         sys.stdout.flush()
@@ -57,23 +60,43 @@ def start_stopwatch():
 
         time.sleep(1)
 
-# Функция для проверки текста на наличие только русских, английских букв, цифр и пробелов
-def contains_only_russian_or_english_or_numbers(text):
-    pattern = r'^[а-яА-Яa-zA-Z0-9\s]+$'
-    return bool(re.match(pattern, text))
-
 # Функция для получения новостей и отправки их в канал
 def drop_news(garbage):
     response = api.news_api(country='ru', size=1)
     title = response['results'][0]['title']
     content = response['results'][0]['content']
 
-    if contains_only_russian_or_english_or_numbers(title) and contains_only_russian_or_english_or_numbers(content):
-        message = '*' + title + '*' + '\n' + content
-        send_message(message)
-    else:
-        error_message = "К сожалению, мы не смогли выложить для вас новость.\n\nВозможно, в заголовке или в содержимом не было ничего, либо содержало какие-либо символы, противоречащие поиску.\n\nСледующую новость опубликуем спустя 1 час и 30 минут."
-        bot.send_message(chat_id=CHANNEL_ID, text=error_message, parse_mode=ParseMode.MARKDOWN, disable_notification=True)
+    message = '*' + title + '*' + '\n' + content
+    send_message(message)
+
+def discordrp():
+    # Создайте экземпляр клиента Discord Rich Presence
+    RPC = pypresence.Presence(client_id=CLIENT_ID)
+    RPC.connect()
+        
+    # Список с именами ваших изображений и текстов
+    image_names = ["up", "right", "down", "left"]
+    texts = ["Local hosting has been started.", "Local hosting has been started..", "Local hosting has been started..."]
+    current_image_index = 0
+    current_text_index = 0
+        
+    while True:
+         # Установите текущее изображение в Discord Rich Presence
+         RPC.update(
+            state="Running a code",
+            details=texts[current_text_index],
+            large_image=image_names[current_image_index],
+            large_text="Лишь бы не забанили меня за это хахах",
+            small_image='image_names[current_image_index]',
+            small_text='Ну я надеюсь что не забанят'
+        )
+         
+         # Увеличьте индекс текущего изображения и индекс текста
+         current_image_index = (current_image_index + 1) % len(image_names)
+         current_text_index = (current_text_index + 1) % len(texts)
+         
+         # Подождите 0.5 секунды перед обновлением изображения
+         time.sleep(1.25)
 
 def program():
     updater = Updater(token=TOKEN, use_context=True)
@@ -83,20 +106,12 @@ def program():
     stopwatch_thread = threading.Thread(target=start_stopwatch)
     stopwatch_thread.daemon = True
     stopwatch_thread.start()
-    
-    if Discord_Presence_Decision:
-        # Создайте экземпляр клиента Discord Rich Presence
-        RPC = pypresence.Presence(client_id=CLIENT_ID)
-        RPC.connect()
 
-        RPC.update(
-            state="Текст",
-            details="Текст",
-            large_image='Изображение большой иконки',
-            large_text="Текст",
-            small_image='Изображение маленькой иконки',
-            small_text='Текст'
-        )
+    if Discord_Presence_Decision:
+        # Запустить DRP в отдельном потоке
+        DRP_thread = threading.Thread(target=discordrp)
+        DRP_thread.daemon = True
+        DRP_thread.start()
 
     # Отправлять новости каждые 1 час и 30 минут
     updater.job_queue.run_repeating(drop_news, interval=5400, first=0, context=CHANNEL_ID)
