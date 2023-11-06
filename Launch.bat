@@ -1,3 +1,3 @@
 @echo off
-cd C:\Users\79999\Desktop\News_Sender
+cd ВАШЕ_ПОЛОЖЕНИЕ_ФАЙЛА
 python telegram_bot_news_sender.py
