@@ -88,33 +88,18 @@ def program():
         # Создайте экземпляр клиента Discord Rich Presence
         RPC = pypresence.Presence(client_id=CLIENT_ID)
         RPC.connect()
-        
-        # Список с именами ваших изображений и текстов
-        image_names = ["up", "right", "down", "left"]
-        texts = ["Local hosting has been started.", "Local hosting has been started..", "Local hosting has been started..."]
-        current_image_index = 0
-        current_text_index = 0
-        
-        while True:
-            # Установите текущее изображение в Discord Rich Presence
-            RPC.update(
-                state="Running a code",
-                details=texts[current_text_index],
-                large_image=image_names[current_image_index],
-                large_text="Лишь бы не забанили меня за это хахах",
-                small_image='image_names[current_image_index]',
-                small_text='Ну я надеюсь что не забанят'
-            )
-            
-            # Увеличьте индекс текущего изображения и индекс текста
-            current_image_index = (current_image_index + 1) % len(image_names)
-            current_text_index = (current_text_index + 1) % len(texts)
-            
-            # Подождите 0.5 секунды перед обновлением изображения
-            time.sleep(1.25)
+
+        RPC.update(
+            state="Текст",
+            details="Текст",
+            large_image='Изображение большой иконки',
+            large_text="Текст",
+            small_image='Изображение маленькой иконки',
+            small_text='Текст'
+        )
 
     # Отправлять новости каждые 1 час и 30 минут
-    updater.job_queue.run_repeating(drop_news, interval=10, first=0, context=CHANNEL_ID)
+    updater.job_queue.run_repeating(drop_news, interval=5400, first=0, context=CHANNEL_ID)
 
     updater.start_polling()
     updater.idle()
