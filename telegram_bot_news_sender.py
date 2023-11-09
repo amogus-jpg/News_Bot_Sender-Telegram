@@ -14,6 +14,10 @@ from newsdataapi import NewsDataApiClient
 # Глобальная переменная для определения, следует ли продолжать работу с секундомером
 continue_stopwatch = True
 
+# Переменные для запоминания последних полученных данных
+lastTitle = ''
+lastContent = ''
+
 # Загрузка конфигурации из файла config.ini
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -62,40 +66,42 @@ def start_stopwatch():
 
 # Функция для получения новостей и отправки их в канал
 def drop_news(garbage):
-    response = api.news_api(country='ru', size=1)
+    global lastTitle
+    global lastContent
+
+    response = api.news_api(country='ru', size=1, language='ru')
     title = response['results'][0]['title']
     content = response['results'][0]['content']
 
-    message = '*' + title + '*' + '\n' + content
+    if not title == lastTitle and not content == lastContent:
+        
+        lastTitle = title
+        lastContent = content
+
+        message = '*' + title + '*' + '\n' + content
+    else:
+        message = 'Новость, полученная ботом - повторилась.\nВозможно, новостей пока нет.\n\nЧерез 1 час и 30 минут должна появится новая новость.'
+
     send_message(message)
 
 def discordrp():
     # Создайте экземпляр клиента Discord Rich Presence
     RPC = pypresence.Presence(client_id=CLIENT_ID)
     RPC.connect()
-        
-    # Список с именами ваших изображений и текстов
-    image_names = ["up", "right", "down", "left"]
-    texts = ["Local hosting has been started.", "Local hosting has been started..", "Local hosting has been started..."]
-    current_image_index = 0
-    current_text_index = 0
-        
+
+    # Цикл
     while True:
          # Установите текущее изображение в Discord Rich Presence
          RPC.update(
-            state="Running a code",
-            details=texts[current_text_index],
-            large_image=image_names[current_image_index],
-            large_text="Лишь бы не забанили меня за это хахах",
-            small_image='image_names[current_image_index]',
-            small_text='Ну я надеюсь что не забанят'
+            state="",
+            details="",
+            large_image="",
+            large_text="",
+            small_image="",
+            small_text=""
         )
-         
-         # Увеличьте индекс текущего изображения и индекс текста
-         current_image_index = (current_image_index + 1) % len(image_names)
-         current_text_index = (current_text_index + 1) % len(texts)
-         
-         # Подождите 0.5 секунды перед обновлением изображения
+        
+         # Подождите 1.2 секунды перед обновлением
          time.sleep(1.25)
 
 def program():
